@@ -20,24 +20,43 @@ A React + Vite birthday surprise website built with Tailwind CSS.
    ```
 4. `npm run dev`
 
-## Free deployment with Netlify
+## Free deployment with Netlify (Preview-Only on Separate Site)
 
-You can host both sites for free on Netlify:
+Your app now builds two separate sites:
+- **Builder site** (main): shows home, create, and share pages
+- **Preview site** (separate): shows ONLY the preview result
 
-1. Push this repo to GitHub.
-2. Create one Netlify site for the builder app.
-   - Connect your GitHub repo.
+### Setup
+
+1. Push this repo to GitHub with the new changes.
+2. Create the **Preview site** on Netlify:
+   - Go to `https://app.netlify.com/`
+   - Click **"Add new site"** → **"Import from Git"**
+   - Select your `birthcelebs` repo
    - Build command: `npm run build`
    - Publish directory: `dist`
-3. Create a second Netlify site for the preview app using the same repo.
-   - Use the same build command and publish directory.
-   - You can connect the same branch again as a second site.
-4. Copy the preview app URL from Netlify and use it in `VITE_SHARE_HOST` for the builder app.
-   - Example: `https://happy-wish-preview.netlify.app`
-5. In Netlify settings for the builder site, add an environment variable:
-   - `VITE_SHARE_HOST` = `https://happy-wish-preview.netlify.app`
+   - After deploy, copy the preview site URL (e.g., `https://preview-12345.netlify.app`)
+   - In this site's **Build & deploy** settings, add environment variable:
+     - `VITE_SHARE_HOST_PREVIEW_ONLY=true`
+   - Go to **Redirects** and add:
+     - From: `/*`
+     - To: `/preview.html`
+     - Status: 200 (rewrite)
+   
+3. Create the **Builder site** on Netlify:
+   - Click **"Add new site"** → **"Import from Git"** again
+   - Select the same repo
+   - Same build settings
+   - After deploy, copy the builder site URL
+   - In this site's **Build & deploy** settings, add environment variable:
+     - `VITE_SHARE_HOST=https://<your-preview-site>.netlify.app`
 
-Netlify already supports the app routes with the included `netlify.toml` because all paths are redirected to `index.html`.
+### Result
+
+- Builder app: shows full experience, generates share links to preview site
+- Preview app: shows ONLY the preview result for recipients
+
+Netlify already supports the app routes with the included `netlify.toml` and multiple entry points.
 
 ## Notes
 

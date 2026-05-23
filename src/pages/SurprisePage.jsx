@@ -64,9 +64,18 @@ function SurprisePage() {
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.24em] text-slate-300">
               {steps.map((step, index) => (
-                <span key={step} className={index === activeStep ? 'rounded-full bg-pink-500/20 px-3 py-1 text-white' : 'rounded-full bg-white/5 px-3 py-1'}>
-                  {step}
-                </span>
+                step === 'Cake' ? null : (
+                  <button
+                    key={step}
+                    type="button"
+                    onClick={() => setActiveStep(index)}
+                    className={
+                      `${index === activeStep ? 'bg-pink-500/20 text-white' : 'bg-white/5 text-slate-300'} rounded-full px-3 py-1 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-pink-400`
+                    }
+                  >
+                    {step}
+                  </button>
+                )
               ))}
             </div>
           </div>
@@ -77,7 +86,14 @@ function SurprisePage() {
           {activeStep === 1 && <CakeBlowStep onNext={() => setActiveStep(2)} />}
           {activeStep === 2 && <LetterPage recipientName={config.recipientName} greetingMessage={config.greetingMessage} onNext={() => setActiveStep(3)} />}
           {activeStep === 3 && <MemorySlider memories={memories} onFinish={() => setActiveStep(4)} />}
-          {activeStep === 4 && <Gallery onNext={() => setActiveStep(5)} />}
+          {activeStep === 4 && (
+            <Gallery
+              onNext={() => setActiveStep(5)}
+              onOpenCake={() => setActiveStep(1)}
+              onOpenBalloons={() => setActiveStep(6)}
+              onOpenHug={() => setActiveStep(3)}
+            />
+          )}
           {activeStep === 5 && <FutureMemory plans={futurePlans} actionLabel="Reveal promises" onNext={() => setActiveStep(6)} />}
           {activeStep === 6 && <BalloonWishesDisplay wishes={config.wishes} balloonCount={config.balloons} onFinish={() => setActiveStep(7)} />}
           {activeStep === 7 && <Celebration recipientName={config.recipientName} onRestart={() => setActiveStep(0)} />}

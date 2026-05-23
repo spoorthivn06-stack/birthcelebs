@@ -1,4 +1,4 @@
-function Gallery({ onNext }) {
+function Gallery({ onNext, onOpenCake, onOpenBalloons, onOpenHug }) {
   const photos = [
     { id: 1, label: 'Cake Surprise', mood: 'A glowing cake moment full of smiles.', emoji: '🎂' },
     { id: 2, label: 'Balloon Dream', mood: 'Colorful balloons and warm wishes.', emoji: '🎈' },
@@ -17,13 +17,22 @@ function Gallery({ onNext }) {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {photos.map((photo) => (
-          <div key={photo.id} className="rounded-[1.75rem] border border-white/10 bg-slate-950/90 p-5 shadow-[0_30px_80px_rgba(15,23,42,0.35)] transition hover:-translate-y-1">
+          <button
+            key={photo.id}
+            type="button"
+            onClick={() => {
+              if (photo.id === 1) return onOpenCake && onOpenCake();
+              if (photo.id === 2) return onOpenBalloons && onOpenBalloons();
+              if (photo.id === 3) return onOpenHug && onOpenHug();
+            }}
+            className="text-left rounded-[1.75rem] border border-white/10 bg-slate-950/90 p-5 shadow-[0_30px_80px_rgba(15,23,42,0.35)] transition hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-pink-400"
+          >
             <div className="mb-5 flex h-40 items-center justify-center rounded-3xl bg-gradient-to-br from-fuchsia-500 via-violet-500 to-pink-500 text-6xl text-white">
               {photo.emoji}
             </div>
             <h3 className="text-xl font-semibold text-white">{photo.label}</h3>
             <p className="mt-3 text-sm leading-7 text-slate-300">{photo.mood}</p>
-          </div>
+          </button>
         ))}
       </div>
 
