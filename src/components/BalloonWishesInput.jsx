@@ -23,22 +23,27 @@ export default function BalloonWishesInput({ balloonCount, wishes, onChange }) {
   return (
     <div className="space-y-6 rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-slate-900/30">
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-slate-200">Promises for Balloons</label>
+        <label className="block text-sm font-medium text-slate-200">Balloon wishes</label>
         <p className="text-xs text-slate-400">
-          Create one promise per balloon ({wishes.length} / {balloonCount}). Viewers will pop balloons to reveal each promise!
+          Create one wish per balloon ({wishes.length} / {balloonCount}). Viewers will pop balloons to reveal each message.
         </p>
       </div>
 
       {wishes.length > 0 && (
         <div className="space-y-3">
-          <p className="text-xs font-medium text-slate-300">Your promises:</p>
+          <p className="text-xs font-medium text-slate-300">Your wishes:</p>
           <div className="grid gap-2 sm:grid-cols-2">
             {wishes.map((wish, index) => (
               <div key={index} className="flex items-start gap-2 rounded-2xl border border-white/10 bg-slate-950/80 p-3">
-                <div className="flex-1">
-                  <p className="text-xs text-slate-400">Balloon {index + 1}</p>
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-100">{wish}</p>
-                </div>
+                <label className="flex-1">
+                  <span className="text-xs text-slate-400">Balloon {index + 1}</span>
+                  <textarea
+                    value={wish}
+                    rows="2"
+                    onChange={(event) => updateWish(index, event.target.value)}
+                    className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 outline-none focus:ring-2 focus:ring-pink-500/20"
+                  />
+                </label>
                 <button
                   type="button"
                   onClick={() => removeWish(index)}
@@ -62,7 +67,7 @@ export default function BalloonWishesInput({ balloonCount, wishes, onChange }) {
                 addWish();
               }
             }}
-            placeholder="Write a promise, wish, or heartfelt message..."
+            placeholder="Write a wish or heartfelt message..."
             rows="3"
             className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none focus:ring-2 focus:ring-pink-500/20"
           />
@@ -72,7 +77,7 @@ export default function BalloonWishesInput({ balloonCount, wishes, onChange }) {
             disabled={!currentWish.trim()}
             className="inline-flex rounded-full bg-gradient-to-r from-fuchsia-500 to-pink-500 px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 disabled:opacity-50"
           >
-            Add promise ({wishes.length + 1} / {balloonCount})
+            Add wish ({wishes.length + 1} / {balloonCount})
           </button>
         </div>
       )}

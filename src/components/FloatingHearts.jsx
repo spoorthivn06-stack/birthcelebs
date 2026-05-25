@@ -2,12 +2,22 @@ import { motion } from 'framer-motion';
 
 const colors = ['bg-pink-400/80', 'bg-violet-400/80', 'bg-rose-400/70', 'bg-fuchsia-400/80', 'bg-pink-300/70'];
 
-export default function FloatingHearts({ count = 8 }) {
+export default function FloatingHearts({ count = 8, theme = 'Party' }) {
+  const paletteMap = {
+    Party: ['bg-fuchsia-400/80', 'bg-pink-400/80', 'bg-rose-400/70', 'bg-violet-400/80'],
+    Romantic: ['bg-rose-400/80', 'bg-red-400/70', 'bg-pink-300/70'],
+    Minimal: ['bg-slate-400/70', 'bg-slate-300/60'],
+    Neon: ['bg-lime-400/80', 'bg-cyan-400/80', 'bg-fuchsia-400/80'],
+    Cartoon: ['bg-yellow-300/80', 'bg-orange-300/80', 'bg-pink-300/80'],
+  };
+
+  const palette = paletteMap[theme] || colors;
+
   const hearts = Array.from({ length: count }, (_, index) => ({
     size: 14 + (index % 4) * 3,
     left: `${8 + (index * 9)}%`,
     delay: (index % 5) * 0.6,
-    color: colors[index % colors.length],
+    color: palette[index % palette.length],
   }));
 
   return (

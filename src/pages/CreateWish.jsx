@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 import ThemeSelector from '../components/ThemeSelector.jsx';
 import BackgroundSelector from '../components/BackgroundSelector.jsx';
 import ImageUploader from '../components/ImageUploader.jsx';
@@ -7,7 +6,6 @@ import BalloonWishesInput from '../components/BalloonWishesInput.jsx';
 import MusicUploader from '../components/MusicUploader.jsx';
 
 const wishTypes = ['Birthday', 'Anniversary', 'Valentine', 'Thank You', 'Get Well Soon', 'Best Wishes'];
-const themeNames = ['Party', 'Romantic', 'Minimal', 'Neon', 'Cartoon'];
 const questions = [
   'Do you believe the best is yet to come?',
   'Will you always keep smiling for me?',
@@ -48,6 +46,12 @@ function encodeState(payload) {
 
 function CreateWish() {
   const [step, setStep] = useState(0);
+  const [previewId] = useState(() => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  });
   const [settings, setSettings] = useState({
     wishType: 'Birthday',
     theme: 'Party',
@@ -55,19 +59,28 @@ function CreateWish() {
     balloons: 8,
     question: questions[0],
     recipientName: 'Friend',
-    greetingMessage: 'I hope today feels like a celebration of everything you are.',
+    greetingMessage: '',
     images: [],
     wishes: [],
     backgroundMusic: null,
   });
-  const [shareLink, setShareLink] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const encoded = useMemo(() => encodeState(settings), [settings]);
-  const previewUrl = `${SHARE_HOST}/preview?data=${encodeURIComponent(encoded)}`;
+  const sharePayload = useMemo(() => ({ ...settings, images: [] }), [settings]);
+  const shareEncoded = useMemo(() => encodeState(sharePayload), [sharePayload]);
+  const previewUrl = `${window.location.origin}/preview?draft=${encodeURIComponent(previewId)}`;
+  const shareUrl = `${SHARE_HOST}/preview?data=${encodeURIComponent(shareEncoded)}`;
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(`wish-preview:${previewId}`, JSON.stringify(settings));
+    } catch {
+      localStorage.removeItem(`wish-preview:${previewId}`);
+    }
+  }, [previewId, settings]);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(previewUrl);
+    await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
@@ -79,7 +92,7 @@ function CreateWish() {
           <p className="text-sm uppercase tracking-[0.32em] text-pink-200/80">Create your wish</p>
           <h1 className="text-4xl font-semibold sm:text-5xl">Build a private, sequential greeting experience</h1>
           <p className="max-w-3xl leading-8 text-slate-300">
-            Choose the type of occasion, set the atmosphere, add your message and balloon count, then generate a shareable link that opens the experience as a step-by-step story.
+            Choose the type of occasion, set the atmosphere, add your message and photos, then generate a shareable link that opens the experience as a step-by-step story.
           </p>
         </div>
       </section>
@@ -157,6 +170,7 @@ function CreateWish() {
             <textarea
               rows="4"
               value={settings.greetingMessage}
+              placeholder="Write the exact letter or message you want the viewer to see..."
               onChange={(event) => setSettings({ ...settings, greetingMessage: event.target.value })}
               className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-slate-100 outline-none"
             />
@@ -165,6 +179,12 @@ function CreateWish() {
           <ImageUploader value={settings.images} onChange={(images) => setSettings({ ...settings, images })} />
 
           <MusicUploader value={settings.backgroundMusic} onChange={(music) => setSettings({ ...settings, backgroundMusic: music })} />
+
+          <BalloonWishesInput
+            balloonCount={settings.balloons}
+            wishes={settings.wishes}
+            onChange={(wishes) => setSettings({ ...settings, wishes })}
+          />
 
           <div className="flex flex-wrap gap-3">
             <button
@@ -179,40 +199,13 @@ function CreateWish() {
               onClick={() => setStep(2)}
               className="rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20"
             >
-              Add promises
-            </button>
-          </div>
-        </section>
-      )}
-
-      {step === 2 && (
-        <section className="space-y-6">
-          <BalloonWishesInput
-            balloonCount={settings.balloons}
-            wishes={settings.wishes}
-            onChange={(wishes) => setSettings({ ...settings, wishes })}
-          />
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="rounded-full border border-white/10 bg-slate-900/80 px-6 py-3 text-sm font-semibold text-slate-100 transition hover:bg-slate-800"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              onClick={() => setStep(3)}
-              className="rounded-full bg-gradient-to-r from-violet-500 to-pink-500 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/20"
-            >
               Preview summary
             </button>
           </div>
         </section>
       )}
 
-      {step === 3 && (
+      {step === 2 && (
         <section className="space-y-6 rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-slate-900/30">
           <div className="space-y-4">
             <p className="text-sm uppercase tracking-[0.32em] text-pink-200/80">Summary</p>
@@ -222,7 +215,7 @@ function CreateWish() {
               <p><strong>Theme:</strong> {settings.theme}</p>
               <p><strong>Background:</strong> {settings.background}</p>
               <p><strong>Balloon count:</strong> {settings.balloons}</p>
-              <p><strong>Promises:</strong> {settings.wishes.length} promises added</p>
+              <p><strong>Gallery promises:</strong> {settings.wishes.length} added</p>
               <p><strong>First question:</strong> {settings.question}</p>
               <p><strong>Recipient:</strong> {settings.recipientName}</p>
               <p><strong>Slideshow images:</strong> {settings.images.length} uploaded</p>
@@ -251,7 +244,7 @@ function CreateWish() {
 
           <div className="rounded-3xl border border-white/10 bg-slate-950/80 p-4 text-sm text-slate-400">
             <p className="font-medium text-slate-100">Shareable link</p>
-            <p className="mt-2 break-all">{previewUrl}</p>
+            <p className="mt-2 break-all">{shareUrl}</p>
             {!IS_CUSTOM_SHARE_HOST && (
               <p className="mt-3 text-xs text-amber-300">
                 Tip: set <span className="font-semibold">VITE_SHARE_HOST</span> in your .env file to publish the preview on a different site.

@@ -8,11 +8,12 @@ export default function BalloonWishesDisplay({ wishes, balloonCount, onFinish })
   const [currentWish, setCurrentWish] = useState(null);
   const [showWish, setShowWish] = useState(false);
   const [isLastPopup, setIsLastPopup] = useState(false);
+  const visibleWishes = wishes.filter((wish) => wish?.trim());
 
-  const balloons = Array.from({ length: balloonCount }, (_, i) => ({
+  const balloons = visibleWishes.map((wish, i) => ({
     id: i,
     color: balloonColors[i % balloonColors.length],
-    wish: wishes[i] || `Promise ${i + 1}`,
+    wish,
   }));
 
   const handleBalloonClick = (balloon) => {
@@ -21,7 +22,7 @@ export default function BalloonWishesDisplay({ wishes, balloonCount, onFinish })
     setPoppedBalloons((prev) => {
       const next = new Set(prev);
       next.add(balloon.id);
-      setIsLastPopup(next.size === balloonCount);
+      setIsLastPopup(next.size === balloons.length);
       return next;
     });
 
@@ -65,14 +66,15 @@ export default function BalloonWishesDisplay({ wishes, balloonCount, onFinish })
       </div>
 
       <div className={`relative space-y-6 text-center text-slate-100 transition duration-300 ${showWish ? 'blur-sm' : ''}`}>
-        <p className="text-sm uppercase tracking-[0.32em] text-pink-200/80">Your Promises Await</p>
-        <h2 className="text-3xl font-semibold sm:text-4xl">Pop the balloons to reveal your promises</h2>
+        <p className="text-sm uppercase tracking-[0.32em] text-pink-200/80">Your Wishes Await</p>
+        <h2 className="text-3xl font-semibold sm:text-4xl">Pop the balloons to reveal your wishes</h2>
         <p className="mx-auto max-w-2xl text-slate-200/90 leading-8">
-          Click on each balloon to pop it and discover a special promise that appears front and center.
+          Click each balloon to pop it and discover the message added by the creator.
         </p>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {balloons.map((balloon) => (
+        {balloons.length > 0 ? (
+          <div className="mt-12 grid gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {balloons.map((balloon) => (
             <motion.button
               key={balloon.id}
               onClick={() => handleBalloonClick(balloon)}
@@ -104,11 +106,23 @@ export default function BalloonWishesDisplay({ wishes, balloonCount, onFinish })
                 </motion.div>
               )}
             </motion.button>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mx-auto mt-10 max-w-xl rounded-[2rem] border border-white/10 bg-slate-950/80 p-8 text-slate-200">
+            <p>No balloon wishes were added.</p>
+            <button
+              type="button"
+              onClick={onFinish}
+              className="mt-5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-pink-500/20"
+            >
+              Continue
+            </button>
+          </div>
+        )}
 
         <div className="mt-8 text-sm text-slate-300">
-          {poppedBalloons.size} / {balloonCount} promises popped
+          {poppedBalloons.size} / {balloons.length} wishes popped
         </div>
       </div>
 
@@ -153,7 +167,7 @@ export default function BalloonWishesDisplay({ wishes, balloonCount, onFinish })
               <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-3xl">
                 ✨
               </div>
-              <h3 className="text-2xl font-semibold text-white sm:text-3xl mb-4">Promise {currentWish.id + 1}</h3>
+              <h3 className="text-2xl font-semibold text-white sm:text-3xl mb-4">Wish {currentWish.id + 1}</h3>
               <p className="text-lg leading-8 text-slate-100 mb-6">{currentWish.wish}</p>
               <button
                 onClick={closeWish}

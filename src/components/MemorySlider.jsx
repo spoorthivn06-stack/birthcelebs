@@ -1,21 +1,58 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-export default function MemorySlider({ memories, onFinish }) {
+export default function MemorySlider({ memories, onFinish, themeStyle }) {
   const [index, setIndex] = useState(0);
   const item = memories[index];
+  const accent = themeStyle?.accent || 'from-pink-500 via-fuchsia-500 to-violet-500';
+  const accentText = themeStyle?.text || 'text-pink-200/80';
+
+  useEffect(() => {
+    if (memories.length < 2) return undefined;
+
+    const timer = window.setInterval(() => {
+      setIndex((prev) => (prev + 1) % memories.length);
+    }, 3000);
+
+    return () => window.clearInterval(timer);
+  }, [memories.length]);
+
+  if (!memories.length) {
+    return (
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className={`rounded-[2rem] border border-white/10 bg-white/10 p-8 shadow-2xl ${themeStyle?.shadow || 'shadow-pink-500/15'} backdrop-blur-xl`}
+      >
+        <div className="space-y-6 text-center text-slate-100">
+          <p className={`text-sm uppercase tracking-[0.32em] ${accentText}`}>Memories</p>
+          <h2 className="text-3xl font-semibold sm:text-4xl">No photos were uploaded</h2>
+          <p className="mx-auto max-w-2xl leading-8 text-slate-300">
+            The memories section only shows photos added by the creator.
+          </p>
+          <button
+            onClick={onFinish}
+            className={`inline-flex rounded-full bg-gradient-to-r ${accent} px-6 py-3 text-sm font-semibold text-white shadow-lg ${themeStyle?.shadow || 'shadow-pink-500/20'} hover:-translate-y-0.5`}
+          >
+            Continue
+          </button>
+        </div>
+      </motion.section>
+    );
+  }
 
   return (
     <motion.section
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="rounded-[2rem] border border-white/10 bg-white/10 p-8 shadow-2xl shadow-pink-500/15 backdrop-blur-xl"
+      className={`rounded-[2rem] border border-white/10 bg-white/10 p-8 shadow-2xl ${themeStyle?.shadow || 'shadow-pink-500/15'} backdrop-blur-xl`}
     >
       <div className="flex flex-col gap-6 text-slate-100">
         <div className="flex flex-col gap-2 text-center">
-          <p className="text-sm uppercase tracking-[0.32em] text-pink-200/80">Memory Cards</p>
-          <h2 className="text-3xl font-semibold sm:text-4xl">Moments we’ll always keep</h2>
+          <p className={`text-sm uppercase tracking-[0.32em] ${accentText}`}>Memories</p>
+          <h2 className="text-3xl font-semibold sm:text-4xl">Uploaded moments</h2>
         </div>
         <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/90 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.45)]">
           <div className="mb-5 flex items-center justify-between text-sm uppercase tracking-[0.24em] text-slate-400">
@@ -23,15 +60,30 @@ export default function MemorySlider({ memories, onFinish }) {
             <span>{item.title}</span>
           </div>
           <div className="space-y-4">
-            <div className="aspect-[16/9] rounded-3xl bg-gradient-to-br from-pink-500 via-fuchsia-500 to-violet-500 p-5 shadow-inner shadow-pink-500/20">
-              <div className="flex h-full flex-col justify-between rounded-3xl bg-white/10 p-5 text-white">
-                <span className="text-xs uppercase tracking-[0.32em] text-white/75">{item.subtitle}</span>
-                <p className="text-lg leading-8">{item.detail}</p>
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-white/10 px-4 py-2 text-xs text-white/90">{item.accent}</span>
-                  <span className="text-sm text-white/80">Remember this day</span>
+            <div className={`aspect-[16/9] overflow-hidden rounded-3xl bg-gradient-to-br ${accent} p-3 shadow-inner ${themeStyle?.shadow || 'shadow-pink-500/20'}`}>
+              {item.image ? (
+                <img src={item.image} alt={item.title} className="h-full w-full rounded-[1.35rem] object-cover" />
+              ) : (
+                <div className="flex h-full flex-col justify-between rounded-3xl bg-white/10 p-5 text-white">
+                  <span className="text-xs uppercase tracking-[0.32em] text-white/75">{item.subtitle}</span>
+                  <p className="text-lg leading-8">{item.detail}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full bg-white/10 px-4 py-2 text-xs text-white/90">{item.accent}</span>
+                    <span className="text-sm text-white/80">Remember this day</span>
+                  </div>
                 </div>
-              </div>
+              )}
+            </div>
+            <div className="flex justify-center gap-2">
+              {memories.map((memory, dotIndex) => (
+                <button
+                  key={memory.title}
+                  type="button"
+                  onClick={() => setIndex(dotIndex)}
+                  className={`${dotIndex === index ? 'w-8 bg-white' : 'w-2 bg-white/30'} h-2 rounded-full transition-all`}
+                  aria-label={`Show memory ${dotIndex + 1}`}
+                />
+              ))}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex gap-3">
@@ -53,9 +105,9 @@ export default function MemorySlider({ memories, onFinish }) {
               {index === memories.length - 1 ? (
                 <button
                   onClick={onFinish}
-                  className="inline-flex rounded-full bg-gradient-to-r from-fuchsia-500 via-pink-500 to-orange-400 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 hover:-translate-y-0.5"
+                  className={`inline-flex rounded-full bg-gradient-to-r ${accent} px-6 py-3 text-sm font-semibold text-white shadow-lg ${themeStyle?.shadow || 'shadow-orange-500/20'} hover:-translate-y-0.5`}
                 >
-                  Continue to Future Plans
+                  Continue to Cake
                 </button>
               ) : (
                 <span className="text-sm text-slate-400">Swipe through each memory at your own pace.</span>
