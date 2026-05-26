@@ -25,9 +25,9 @@ export default function BackgroundMusic({ src, trackName }) {
   }, [src]);
 
   return (
-    <div className="pointer-events-none absolute right-6 top-6 z-20 flex items-center gap-3 rounded-full border border-white/10 bg-slate-950/70 px-4 py-2 text-sm text-slate-200 shadow-xl shadow-black/30 backdrop-blur-xl sm:static sm:mx-auto sm:mb-6 sm:w-fit sm:pointer-events-auto">
+    <div className="fixed right-4 top-4 z-40 flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-full border border-white/10 bg-slate-950/80 px-4 py-2 text-sm text-slate-200 shadow-xl shadow-black/30 backdrop-blur-xl">
       <audio ref={audioRef} src={src || DEFAULT_TRACK_URL} loop preload="auto" />
-      <span className="pointer-events-auto text-slate-100">
+      <span className="max-w-40 truncate text-slate-100 sm:max-w-64">
         {trackName ? `Music: ${trackName}` : 'Background music'}
       </span>
       <button

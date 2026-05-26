@@ -135,9 +135,7 @@ function SurprisePage() {
   return (
     <div style={bgStyle} className="relative min-h-screen overflow-hidden text-white">
       <FloatingHearts count={config.balloons} theme={config.theme} />
-      {activeStep === 6 && (
-        <BackgroundMusic src={config.backgroundMusic?.file} trackName={config.backgroundMusic?.name} />
-      )}
+      <BackgroundMusic src={config.backgroundMusic?.file} trackName={config.backgroundMusic?.name} />
       <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
         <div className={`mb-8 rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-2xl ${themeStyle.shadow} backdrop-blur-xl`}>
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
